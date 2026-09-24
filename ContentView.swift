@@ -1,24 +1,39 @@
-//
-//  ContentView.swift
-//  Storage Cleaner App
-//
-//  Created by Keshav Rathi on 22/09/26.
-//
-
 import SwiftUI
 
-struct ContentView: View {
+/// Main tab navigation: Home, Clean, Settings.
+struct MainTabView: View {
+    @Environment(DashboardViewModel.self) private var dashboardVM
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            NavigationStack {
+                DashboardView()
+            }
+            .tabItem {
+                Label("Home", systemImage: "house.fill")
+            }
+
+            NavigationStack {
+                CleanTabView()
+            }
+            .tabItem {
+                Label("Clean", systemImage: "sparkles")
+            }
+
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gearshape.fill")
+            }
         }
-        .padding()
+        .tint(CSTheme.accentCyan)
     }
 }
 
-#Preview {
-    ContentView()
+/// Fallback wrapper for ContentView
+struct ContentView: View {
+    var body: some View {
+        MainTabView()
+    }
 }
