@@ -10,7 +10,7 @@ struct MainTabView: View {
                 DashboardView()
             }
             .tabItem {
-                Label("Home", systemImage: "house.fill")
+                Label("Home", systemImage: "internaldrive.fill")
             }
 
             NavigationStack {
@@ -27,7 +27,7 @@ struct MainTabView: View {
                 Label("Settings", systemImage: "gearshape.fill")
             }
         }
-        .tint(CSTheme.accentCyan)
+        .tint(CSTheme.accentBlue)
     }
 }
 

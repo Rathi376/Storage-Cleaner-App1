@@ -10,8 +10,8 @@ struct SettingsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                // Privacy Hero
+            VStack(spacing: 18) {
+                // Privacy Hero Card
                 privacyHeroCard
 
                 // Permissions Section
@@ -23,10 +23,10 @@ struct SettingsView: View {
                 // App Info Card
                 appInfoCard
 
-                Spacer(minLength: 40)
+                Spacer(minLength: 32)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
+            .padding(.horizontal, 16)
+            .padding(.top, 10)
         }
         .background(CSTheme.background.ignoresSafeArea())
         .navigationTitle("Settings")
@@ -42,12 +42,12 @@ struct SettingsView: View {
         VStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(CSTheme.accentCyan.opacity(0.15))
+                    .fill(CSTheme.accentBlue.opacity(0.12))
                     .frame(width: 64, height: 64)
 
                 Image(systemName: "lock.shield.fill")
                     .font(.system(size: 30))
-                    .foregroundStyle(CSTheme.accentCyan)
+                    .foregroundStyle(CSTheme.accentBlue)
             }
 
             Text("100% On-Device & Private")
@@ -69,16 +69,14 @@ struct SettingsView: View {
 
     private var permissionsCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Permissions")
+            Text("System Permissions")
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(CSTheme.textPrimary)
 
             // Photos
-            HStack {
+            HStack(spacing: 12) {
                 Image(systemName: "photo.stack.fill")
-                    .font(.system(size: 20))
-                    .foregroundStyle(CSTheme.accentPurple)
-                    .frame(width: 32)
+                    .csIconBadge(color: CSTheme.accentBlue)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Photo Library")
@@ -92,21 +90,20 @@ struct SettingsView: View {
                 Spacer()
 
                 Button("Manage") {
+                    CSTheme.hapticImpact(.light)
                     openSettings()
                 }
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(CSTheme.accentCyan)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(CSTheme.accentBlue)
             }
 
             Divider()
                 .overlay(CSTheme.cardBorder)
 
             // Contacts
-            HStack {
+            HStack(spacing: 12) {
                 Image(systemName: "person.2.fill")
-                    .font(.system(size: 20))
-                    .foregroundStyle(CSTheme.accentPink)
-                    .frame(width: 32)
+                    .csIconBadge(color: CSTheme.accentGreen)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Contacts")
@@ -120,10 +117,11 @@ struct SettingsView: View {
                 Spacer()
 
                 Button("Manage") {
+                    CSTheme.hapticImpact(.light)
                     openSettings()
                 }
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(CSTheme.accentPink)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(CSTheme.accentGreen)
             }
         }
         .csCard()
@@ -133,14 +131,14 @@ struct SettingsView: View {
 
     private var privacyPledgeCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Our Guarantees")
+            Text("Privacy Guarantees")
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(CSTheme.textPrimary)
 
-            guaranteeRow(icon: "network.slash", text: "No Internet Connection Used", color: CSTheme.accentGreen)
-            guaranteeRow(icon: "person.crop.circle.badge.xmark", text: "No Accounts or Sign In Required", color: CSTheme.accentCyan)
-            guaranteeRow(icon: "creditcard.trianglebadge.exclamationmark", text: "100% Free Forever, No Paywalls", color: CSTheme.accentOrange)
-            guaranteeRow(icon: "hand.raised.slash.fill", text: "Never Deletes Without Explicit Confirmation", color: CSTheme.accentPink)
+            guaranteeRow(icon: "network.slash", text: "No Internet Connection Required", color: CSTheme.accentBlue)
+            guaranteeRow(icon: "person.crop.circle.badge.xmark", text: "No Sign-In or Accounts Needed", color: CSTheme.accentCyan)
+            guaranteeRow(icon: "lock.fill", text: "100% On-Device Processing", color: CSTheme.accentGreen)
+            guaranteeRow(icon: "hand.raised.fill", text: "Never Deletes Without Explicit Confirmation", color: CSTheme.accentOrange)
         }
         .csCard()
     }
@@ -148,9 +146,9 @@ struct SettingsView: View {
     private func guaranteeRow(icon: String, text: String, color: Color) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(color)
-                .frame(width: 24)
+                .frame(width: 22)
 
             Text(text)
                 .font(.system(size: 13, weight: .medium))
@@ -159,7 +157,7 @@ struct SettingsView: View {
             Spacer()
 
             Image(systemName: "checkmark")
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 11, weight: .bold))
                 .foregroundStyle(CSTheme.accentGreen)
         }
     }
@@ -167,12 +165,12 @@ struct SettingsView: View {
     // MARK: - App Info
 
     private var appInfoCard: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             Text("CleanSpace")
-                .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 15, weight: .bold))
                 .foregroundStyle(CSTheme.textPrimary)
 
-            Text("Version 1.0.0 • Production Release")
+            Text("Version 1.0.0 • On-Device Storage Manager")
                 .font(.system(size: 12))
                 .foregroundStyle(CSTheme.textTertiary)
         }
@@ -187,7 +185,7 @@ struct SettingsView: View {
         case .authorized: return "Full Access granted"
         case .limited: return "Limited Access granted"
         case .denied, .restricted: return "Access denied"
-        case .notDetermined: return "Not determined"
+        case .notDetermined: return "Not requested"
         @unknown default: return "Unknown"
         }
     }
@@ -196,7 +194,7 @@ struct SettingsView: View {
         switch contactStatus {
         case .authorized: return "Access granted"
         case .denied, .restricted: return "Access denied"
-        case .notDetermined: return "Not determined"
+        case .notDetermined: return "Not requested"
         case .limited: return "Limited Access granted"
         @unknown default: return "Unknown"
         }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Clean tab showing recent scan results and quick access to categories.
+/// Clean tab showing recent scan results, space breakdown, and quick category access.
 struct CleanTabView: View {
     @Environment(DashboardViewModel.self) private var vm
 
@@ -10,32 +10,37 @@ struct CleanTabView: View {
                 if !vm.hasScanned {
                     emptyState
                 } else {
-                    // Quick summary
+                    // Quick summary hero card
                     summaryCard
 
-                    // Quick actions
-                    VStack(spacing: 14) {
-                        Text("Quick Clean")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(CSTheme.textPrimary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                    // Quick cleanup categories
+                    VStack(spacing: 12) {
+                        HStack {
+                            Text("Quick Clean")
+                                .font(.system(size: 19, weight: .bold))
+                                .foregroundStyle(CSTheme.textPrimary)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 4)
 
                         if vm.similarPhotoCount > 0 {
-                            quickAction(
-                                icon: "photo.on.rectangle.angled",
+                            quickActionRow(
+                                icon: "photo.stack.fill",
                                 title: "Similar Photos",
-                                subtitle: "\(vm.similarPhotoCount) duplicates found",
-                                color: CSTheme.accentPurple
+                                subtitle: "\(vm.similarPhotoCount) duplicate copies",
+                                size: ByteFormatter.string(from: vm.similarPhotoBytes),
+                                color: CSTheme.accentBlue
                             ) {
                                 SimilarPhotosView(viewModel: PhotoScannerViewModel(result: vm.photoScanResult))
                             }
                         }
 
                         if vm.screenshotCount > 0 {
-                            quickAction(
+                            quickActionRow(
                                 icon: "camera.viewfinder",
                                 title: "Screenshots",
                                 subtitle: "\(vm.screenshotCount) screenshots",
+                                size: ByteFormatter.string(from: vm.screenshotBytes),
                                 color: CSTheme.accentCyan
                             ) {
                                 ScreenshotsView(viewModel: ScreenshotViewModel(items: vm.screenshots))
@@ -43,10 +48,11 @@ struct CleanTabView: View {
                         }
 
                         if vm.largeVideoCount > 0 {
-                            quickAction(
+                            quickActionRow(
                                 icon: "video.fill",
                                 title: "Large Videos",
                                 subtitle: "\(vm.largeVideoCount) videos",
+                                size: ByteFormatter.string(from: vm.largeVideoBytes),
                                 color: CSTheme.accentOrange
                             ) {
                                 LargeVideosView(viewModel: LargeVideoViewModel(items: vm.videos))
@@ -54,10 +60,11 @@ struct CleanTabView: View {
                         }
 
                         if vm.blurryPhotoCount > 0 {
-                            quickAction(
+                            quickActionRow(
                                 icon: "camera.metering.matrix",
                                 title: "Blurry Photos",
-                                subtitle: "\(vm.blurryPhotoCount) potentially blurry",
+                                subtitle: "\(vm.blurryPhotoCount) low-sharpness photos",
+                                size: ByteFormatter.string(from: vm.blurryPhotoBytes),
                                 color: CSTheme.accentPink
                             ) {
                                 BlurryPhotosView(viewModel: BlurryPhotosViewModel(items: vm.blurryPhotos))
@@ -65,11 +72,12 @@ struct CleanTabView: View {
                         }
 
                         if vm.duplicateContactCount > 0 {
-                            quickAction(
+                            quickActionRow(
                                 icon: "person.2.fill",
                                 title: "Duplicate Contacts",
-                                subtitle: "\(vm.duplicateContactCount) duplicates",
-                                color: CSTheme.accentPink
+                                subtitle: "\(vm.duplicateContactCount) duplicate contacts",
+                                size: "Review",
+                                color: CSTheme.accentGreen
                             ) {
                                 DuplicateContactsView(viewModel: DuplicateContactsViewModel(result: vm.contactScanResult))
                             }
@@ -77,10 +85,10 @@ struct CleanTabView: View {
                     }
                 }
 
-                Spacer(minLength: 40)
+                Spacer(minLength: 32)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
+            .padding(.horizontal, 16)
+            .padding(.top, 10)
         }
         .background(CSTheme.background.ignoresSafeArea())
         .navigationTitle("Clean")
@@ -89,61 +97,88 @@ struct CleanTabView: View {
 
     private var emptyState: some View {
         VStack(spacing: 20) {
-            Image(systemName: "sparkles")
-                .font(.system(size: 60))
-                .foregroundStyle(CSTheme.primaryGradient)
+            ZStack {
+                Circle()
+                    .fill(CSTheme.accentBlue.opacity(0.12))
+                    .frame(width: 90, height: 90)
 
-            Text("No Scan Results Yet")
-                .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(CSTheme.textPrimary)
+                Image(systemName: "sparkles")
+                    .font(.system(size: 42))
+                    .foregroundStyle(CSTheme.accentBlue)
+            }
 
-            Text("Go to the Home tab and tap Scan Now to find items you can clean up.")
-                .font(.system(size: 15))
-                .foregroundStyle(CSTheme.textSecondary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: 6) {
+                Text("No Scan Results Yet")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(CSTheme.textPrimary)
+
+                Text("Run a scan from the Home tab to detect similar photos, screenshots, blurry photos, and large videos.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(CSTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
         }
-        .padding(.top, 80)
+        .padding(.top, 60)
     }
 
     private var summaryCard: some View {
-        VStack(spacing: 12) {
-            HStack {
+        VStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 24))
+                    .font(.system(size: 22))
                     .foregroundStyle(CSTheme.accentGreen)
-                Text("Scan Complete")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(CSTheme.textPrimary)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Library Analyzed")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(CSTheme.textPrimary)
+                    Text("Ready for safe cleanup")
+                        .font(.system(size: 12))
+                        .foregroundStyle(CSTheme.textSecondary)
+                }
+
                 Spacer()
+
+                Text(ByteFormatter.string(from: vm.reclaimableBytes))
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundStyle(CSTheme.accentGreen)
             }
 
-            HStack(spacing: 20) {
-                summaryItem("Photos", "\(vm.similarPhotoCount)")
-                summaryItem("Screenshots", "\(vm.screenshotCount)")
-                summaryItem("Videos", "\(vm.largeVideoCount)")
-                summaryItem("Contacts", "\(vm.duplicateContactCount)")
+            Divider()
+                .overlay(CSTheme.cardBorder)
+
+            HStack(spacing: 12) {
+                summaryMetric(title: "Photos", value: "\(vm.similarPhotoCount)", color: CSTheme.accentBlue)
+                summaryMetric(title: "Screenshots", value: "\(vm.screenshotCount)", color: CSTheme.accentCyan)
+                summaryMetric(title: "Videos", value: "\(vm.largeVideoCount)", color: CSTheme.accentOrange)
+                summaryMetric(title: "Contacts", value: "\(vm.duplicateContactCount)", color: CSTheme.accentGreen)
             }
         }
         .csCard()
     }
 
-    private func summaryItem(_ title: String, _ value: String) -> some View {
+    private func summaryMetric(title: String, value: String, color: Color) -> some View {
         VStack(spacing: 4) {
             Text(value)
                 .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundStyle(CSTheme.textPrimary)
+                .foregroundStyle(color)
             Text(title)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(CSTheme.textTertiary)
+                .foregroundStyle(CSTheme.textSecondary)
         }
         .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(color.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     @ViewBuilder
-    private func quickAction<Destination: View>(
+    private func quickActionRow<Destination: View>(
         icon: String,
         title: String,
         subtitle: String,
+        size: String,
         color: Color,
         @ViewBuilder destination: @escaping () -> Destination
     ) -> some View {
@@ -152,11 +187,7 @@ struct CleanTabView: View {
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: icon)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(color)
-                    .frame(width: 44, height: 44)
-                    .background(color.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .csIconBadge(color: color)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
@@ -169,11 +200,20 @@ struct CleanTabView: View {
 
                 Spacer()
 
+                Text(size)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(color)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(color.opacity(0.12))
+                    .clipShape(Capsule())
+
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(CSTheme.textTertiary)
             }
             .csCard()
         }
+        .buttonStyle(CSBounceButtonStyle())
     }
 }

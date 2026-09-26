@@ -18,8 +18,8 @@ struct LargeVideosView: View {
                 VStack(spacing: 0) {
                     // Top stats & selection controls
                     topBar
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
 
                     ScrollView {
                         LazyVStack(spacing: 12) {
@@ -30,13 +30,13 @@ struct LargeVideosView: View {
                                     }
                             }
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 100)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 90)
                     }
 
-                    // Floating / pinned bottom bar
+                    // Floating Glass Bottom Bar
                     if viewModel.selectedCount > 0 {
-                        bottomBar
+                        floatingBottomBar
                     }
                 }
             }
@@ -48,10 +48,11 @@ struct LargeVideosView: View {
             if viewModel.selectedCount > 0 {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Review") {
+                        CSTheme.hapticImpact(.light)
                         showReview = true
                     }
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(CSTheme.accentOrange)
-                    .fontWeight(.semibold)
                 }
             }
         }
@@ -64,13 +65,13 @@ struct LargeVideosView: View {
         }) {
             NavigationStack {
                 ZStack {
-                    CSTheme.background.ignoresSafeArea()
+                    Color.black.ignoresSafeArea()
                     if let player = previewPlayer {
                         VideoPlayer(player: player)
                             .onAppear { player.play() }
                     } else {
                         ProgressView()
-                            .tint(CSTheme.accentOrange)
+                            .tint(.white)
                     }
                 }
                 .navigationTitle("Video Preview")
@@ -80,8 +81,8 @@ struct LargeVideosView: View {
                         Button("Done") {
                             isShowingPreview = false
                         }
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(CSTheme.accentOrange)
-                        .fontWeight(.semibold)
                     }
                 }
             }
@@ -93,30 +94,35 @@ struct LargeVideosView: View {
     private var topBar: some View {
         HStack {
             Text("\(viewModel.selectedCount) of \(viewModel.items.count) selected")
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(CSTheme.textSecondary)
 
             Spacer()
 
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Button("Select All") {
+                    CSTheme.hapticImpact(.light)
                     viewModel.selectAll()
                 }
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(CSTheme.accentOrange)
 
+                Text("•")
+                    .foregroundStyle(CSTheme.textTertiary)
+
                 Button("Deselect") {
+                    CSTheme.hapticImpact(.light)
                     viewModel.deselectAll()
                 }
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(CSTheme.textTertiary)
             }
         }
     }
 
-    // MARK: - Bottom Bar
+    // MARK: - Floating Bottom Bar
 
-    private var bottomBar: some View {
+    private var floatingBottomBar: some View {
         VStack(spacing: 0) {
             Divider()
                 .overlay(CSTheme.cardBorder)
@@ -124,33 +130,36 @@ struct LargeVideosView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(viewModel.selectedCount) videos selected")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(CSTheme.textPrimary)
-                    Text(viewModel.formattedSelectedSize)
-                        .font(.system(size: 13, weight: .medium))
+                    Text("Reclaims \(viewModel.formattedSelectedSize)")
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundStyle(CSTheme.accentOrange)
                 }
 
                 Spacer()
 
                 Button {
+                    CSTheme.hapticImpact(.medium)
                     showReview = true
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: "trash")
+                        Image(systemName: "trash.fill")
                         Text("Review")
                     }
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
                     .background(CSTheme.deleteGradient)
                     .clipShape(Capsule())
+                    .shadow(color: Color.red.opacity(0.3), radius: 6, x: 0, y: 3)
                 }
+                .buttonStyle(CSBounceButtonStyle())
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 14)
-            .background(CSTheme.cardBackground)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(.ultraThinMaterial)
         }
     }
 
@@ -158,8 +167,9 @@ struct LargeVideosView: View {
 
     private func videoRow(_ item: VideoItem) -> some View {
         HStack(spacing: 14) {
-            // Video thumbnail with duration badge and play button
+            // Video thumbnail with play preview button
             Button {
+                CSTheme.hapticImpact(.light)
                 playVideo(item)
             } label: {
                 ZStack(alignment: .bottomTrailing) {
@@ -167,12 +177,12 @@ struct LargeVideosView: View {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 96, height: 72)
+                            .frame(width: 92, height: 72)
                             .clipped()
                     } else {
                         Rectangle()
                             .fill(CSTheme.surfaceLight)
-                            .frame(width: 96, height: 72)
+                            .frame(width: 92, height: 72)
                             .overlay {
                                 ProgressView()
                                     .tint(CSTheme.textTertiary)
@@ -181,11 +191,11 @@ struct LargeVideosView: View {
 
                     // Play icon overlay
                     Circle()
-                        .fill(Color.black.opacity(0.55))
-                        .frame(width: 32, height: 32)
+                        .fill(Color.black.opacity(0.5))
+                        .frame(width: 28, height: 28)
                         .overlay {
                             Image(systemName: "play.fill")
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundStyle(.white)
                                 .offset(x: 1)
                         }
@@ -193,25 +203,26 @@ struct LargeVideosView: View {
 
                     // Duration pill
                     Text(item.formattedDuration)
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
+                        .padding(.horizontal, 5)
                         .padding(.vertical, 2)
                         .background(Color.black.opacity(0.75))
                         .clipShape(Capsule())
                         .padding(4)
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
 
             // Info (taps toggle selection)
             Button {
+                CSTheme.hapticImpact(.light)
                 viewModel.toggleSelection(item.id)
             } label: {
                 HStack {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
                             Text(item.formattedSize)
                                 .font(.system(size: 16, weight: .bold, design: .rounded))
                                 .foregroundStyle(CSTheme.textPrimary)
@@ -219,11 +230,11 @@ struct LargeVideosView: View {
                             if item.pixelWidth >= 3840 || item.pixelHeight >= 2160 {
                                 Text("4K")
                                     .font(.system(size: 10, weight: .heavy))
-                                    .foregroundStyle(CSTheme.accentOrange)
+                                    .foregroundStyle(.white)
                                     .padding(.horizontal, 5)
                                     .padding(.vertical, 1)
-                                    .background(CSTheme.accentOrange.opacity(0.18))
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    .background(CSTheme.accentOrange)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                             } else if item.pixelWidth >= 1920 || item.pixelHeight >= 1080 {
                                 Text("HD")
                                     .font(.system(size: 10, weight: .heavy))
@@ -231,33 +242,33 @@ struct LargeVideosView: View {
                                     .padding(.horizontal, 5)
                                     .padding(.vertical, 1)
                                     .background(CSTheme.accentCyan.opacity(0.18))
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                             }
                         }
 
                         Text(item.formattedDate)
-                            .font(.system(size: 13))
+                            .font(.system(size: 12))
                             .foregroundStyle(CSTheme.textSecondary)
 
                         Text("\(item.pixelWidth) × \(item.pixelHeight)")
-                            .font(.system(size: 12))
+                            .font(.system(size: 11))
                             .foregroundStyle(CSTheme.textTertiary)
                     }
 
                     Spacer()
 
-                    // Checkmark toggle
+                    // Selection Checkmark
                     Image(systemName: item.isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 24))
+                        .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(item.isSelected ? CSTheme.accentOrange : CSTheme.textTertiary)
                 }
             }
             .buttonStyle(.plain)
         }
-        .csCard()
+        .csCard(padding: 12)
         .overlay(
-            RoundedRectangle(cornerRadius: CSTheme.cardRadius)
-                .stroke(item.isSelected ? CSTheme.accentOrange.opacity(0.6) : Color.clear, lineWidth: 1.5)
+            RoundedRectangle(cornerRadius: CSTheme.cardRadius, style: .continuous)
+                .stroke(item.isSelected ? CSTheme.accentOrange.opacity(0.8) : Color.clear, lineWidth: 1.5)
         )
     }
 
@@ -280,20 +291,27 @@ struct LargeVideosView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "video.slash")
-                .font(.system(size: 50))
-                .foregroundStyle(CSTheme.textTertiary)
+        VStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(CSTheme.accentOrange.opacity(0.12))
+                    .frame(width: 80, height: 80)
+                Image(systemName: "video.badge.checkmark")
+                    .font(.system(size: 38))
+                    .foregroundStyle(CSTheme.accentOrange)
+            }
 
-            Text("No Large Videos Found")
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(CSTheme.textPrimary)
+            VStack(spacing: 6) {
+                Text("No Large Videos")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(CSTheme.textPrimary)
 
-            Text("No videos exceeding 50 MB were found in your library.")
-                .font(.system(size: 15))
-                .foregroundStyle(CSTheme.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
+                Text("No videos taking excessive space were found.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(CSTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

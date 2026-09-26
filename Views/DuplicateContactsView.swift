@@ -16,22 +16,22 @@ struct DuplicateContactsView: View {
                 VStack(spacing: 0) {
                     // Top summary bar
                     topBar
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
 
                     ScrollView {
-                        LazyVStack(spacing: 16) {
+                        LazyVStack(spacing: 14) {
                             ForEach(viewModel.result.groups) { group in
                                 contactGroupCard(group)
                             }
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 100)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 90)
                     }
 
-                    // Bottom bar for deleting selected duplicates
+                    // Floating Glass Bottom Bar
                     if viewModel.totalSelectedCount > 0 {
-                        bottomBar
+                        floatingBottomBar
                     }
                 }
             }
@@ -43,10 +43,11 @@ struct DuplicateContactsView: View {
             if viewModel.totalSelectedCount > 0 {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Review") {
+                        CSTheme.hapticImpact(.light)
                         showReview = true
                     }
-                    .foregroundStyle(CSTheme.accentPink)
-                    .fontWeight(.semibold)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(CSTheme.accentGreen)
                 }
             }
         }
@@ -56,7 +57,7 @@ struct DuplicateContactsView: View {
         .alert("Merge Error", isPresented: $showMergeError) {
             Button("OK", role: .cancel) { }
         } message: {
-            Text(mergeErrorMessage ?? "An unknown error occurred while merging.")
+            Text(mergeErrorMessage ?? "An error occurred while merging contacts.")
         }
     }
 
@@ -65,22 +66,22 @@ struct DuplicateContactsView: View {
     private var topBar: some View {
         HStack {
             Text("\(viewModel.result.totalGroups) duplicate groups found")
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(CSTheme.textSecondary)
 
             Spacer()
 
             if viewModel.totalSelectedCount > 0 {
-                Text("\(viewModel.totalSelectedCount) selected")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(CSTheme.accentPink)
+                Text("\(viewModel.totalSelectedCount) copies selected")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(CSTheme.accentGreen)
             }
         }
     }
 
-    // MARK: - Bottom Bar
+    // MARK: - Floating Bottom Bar
 
-    private var bottomBar: some View {
+    private var floatingBottomBar: some View {
         VStack(spacing: 0) {
             Divider()
                 .overlay(CSTheme.cardBorder)
@@ -88,33 +89,36 @@ struct DuplicateContactsView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(viewModel.totalSelectedCount) duplicate contacts")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(CSTheme.textPrimary)
-                    Text("Ready for safe removal")
+                    Text("Ready for safe cleanup")
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(CSTheme.accentPink)
+                        .foregroundStyle(CSTheme.accentGreen)
                 }
 
                 Spacer()
 
                 Button {
+                    CSTheme.hapticImpact(.medium)
                     showReview = true
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: "trash")
+                        Image(systemName: "trash.fill")
                         Text("Review")
                     }
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
                     .background(CSTheme.deleteGradient)
                     .clipShape(Capsule())
+                    .shadow(color: Color.red.opacity(0.3), radius: 6, x: 0, y: 3)
                 }
+                .buttonStyle(CSBounceButtonStyle())
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 14)
-            .background(CSTheme.cardBackground)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(.ultraThinMaterial)
         }
     }
 
@@ -125,30 +129,32 @@ struct DuplicateContactsView: View {
             // Group Header
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(group.contacts.first?.fullName ?? "Unknown Contact")
-                        .font(.system(size: 17, weight: .bold))
+                    Text(group.contacts.first?.fullName ?? "Contact")
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(CSTheme.textPrimary)
 
                     Text(group.matchReason)
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(CSTheme.accentPink)
+                        .foregroundStyle(CSTheme.accentBlue)
                 }
 
                 Spacer()
 
                 // Merge Button
                 Button {
+                    CSTheme.hapticImpact(.medium)
                     mergeGroup(group.id)
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.triangle.merge")
+                            .font(.system(size: 11, weight: .bold))
                         Text("Merge")
+                            .font(.system(size: 12, weight: .bold))
                     }
-                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(CSTheme.scanButtonGradient)
+                    .background(CSTheme.accentBlue)
                     .clipShape(Capsule())
                 }
             }
@@ -171,6 +177,7 @@ struct DuplicateContactsView: View {
     private func contactRow(contact: ContactItem, groupId: String, isPrimary: Bool) -> some View {
         Button {
             if !isPrimary {
+                CSTheme.hapticImpact(.light)
                 viewModel.toggleSelection(groupId: groupId, contactId: contact.id)
             }
         } label: {
@@ -178,22 +185,22 @@ struct DuplicateContactsView: View {
                 // Initials Circle
                 ZStack {
                     Circle()
-                        .fill(isPrimary ? CSTheme.accentGreen.opacity(0.2) : CSTheme.surfaceLight)
-                        .frame(width: 40, height: 40)
+                        .fill(isPrimary ? CSTheme.accentGreen.opacity(0.18) : CSTheme.surfaceLight)
+                        .frame(width: 38, height: 38)
 
                     Text(contact.initials)
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(isPrimary ? CSTheme.accentGreen : CSTheme.textPrimary)
                 }
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         Text(contact.fullName.isEmpty ? "No Name" : contact.fullName)
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(CSTheme.textPrimary)
 
                         if isPrimary {
-                            Text("Primary")
+                            Text("Keep")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(CSTheme.accentGreen)
                                 .padding(.horizontal, 6)
@@ -205,11 +212,11 @@ struct DuplicateContactsView: View {
 
                     if let phone = contact.phoneNumbers.first {
                         Text(phone)
-                            .font(.system(size: 13))
+                            .font(.system(size: 12))
                             .foregroundStyle(CSTheme.textSecondary)
                     } else if let email = contact.emailAddresses.first {
                         Text(email)
-                            .font(.system(size: 13))
+                            .font(.system(size: 12))
                             .foregroundStyle(CSTheme.textSecondary)
                     }
                 }
@@ -218,8 +225,8 @@ struct DuplicateContactsView: View {
 
                 if !isPrimary {
                     Image(systemName: contact.isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 22))
-                        .foregroundStyle(contact.isSelected ? CSTheme.accentPink : CSTheme.textTertiary)
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(contact.isSelected ? CSTheme.accentGreen : CSTheme.textTertiary)
                 }
             }
             .padding(.vertical, 4)
@@ -243,20 +250,27 @@ struct DuplicateContactsView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "person.crop.circle.badge.checkmark")
-                .font(.system(size: 50))
-                .foregroundStyle(CSTheme.accentGreen)
+        VStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(CSTheme.accentGreen.opacity(0.12))
+                    .frame(width: 80, height: 80)
+                Image(systemName: "person.crop.circle.badge.checkmark")
+                    .font(.system(size: 38))
+                    .foregroundStyle(CSTheme.accentGreen)
+            }
 
-            Text("No Duplicate Contacts")
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(CSTheme.textPrimary)
+            VStack(spacing: 6) {
+                Text("No Duplicate Contacts")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(CSTheme.textPrimary)
 
-            Text("Your address book is clean and has no duplicate entries.")
-                .font(.system(size: 15))
-                .foregroundStyle(CSTheme.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
+                Text("Your contacts list is well-organized with no duplicate entries.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(CSTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

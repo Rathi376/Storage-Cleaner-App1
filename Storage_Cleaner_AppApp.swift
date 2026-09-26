@@ -8,7 +8,6 @@ struct CleanSpaceApp: App {
         WindowGroup {
             MainTabView()
                 .environment(dashboardVM)
-                .preferredColorScheme(.dark)
         }
     }
 }
