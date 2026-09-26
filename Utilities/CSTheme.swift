@@ -99,12 +99,14 @@ enum CSTheme {
 
     // MARK: - Haptics
 
+    @MainActor
     static func hapticImpact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.prepare()
         generator.impactOccurred()
     }
 
+    @MainActor
     static func hapticNotification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
         let generator = UINotificationFeedbackGenerator()
         generator.prepare()

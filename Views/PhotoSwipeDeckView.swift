@@ -94,7 +94,7 @@ struct PhotoSwipeDeckView: View {
                 Spacer()
 
                 // Recommended photo comparison pill (if exists)
-                if let best = recommendedItem {
+                if recommendedItem != nil {
                     Button {
                         CSTheme.hapticImpact(.light)
                         showCompareBest.toggle()
